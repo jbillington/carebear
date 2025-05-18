@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vapi SDK + Vite Test V2</title>
+    <!-- Google fonts for better typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class="v2-container">
+      <!-- Header with logo placeholder -->
+      <header class="header">
+        <div class="logo-container">
+          <img src="https://placehold.co/200x60?text=Your+Logo" alt="Logo" class="logo" />
+        </div>
+        <h1 class="app-title">Vapi SDK Test Suite</h1>
+      </header>
+      
+      <div class="main-content">
+        <!-- Voice Assistant Section - Featured at the top -->
+        <section class="voice-assistant">
+          <h2>Voice Conversation</h2>
+          
+          <div class="input-group">
+            <label for="api-key-input">VAPI API Key:</label>
+            <input type="text" id="api-key-input" placeholder="Enter your API key from the Vapi Dashboard">
+            <button id="init-btn">Initialize SDK</button>
+          </div>
+          
+          <div class="status" id="status">Ready to initialize</div>
+          
+          <div class="input-group">
+            <label for="assistant-id-input">Assistant ID:</label>
+            <input type="text" id="assistant-id-input" placeholder="Enter Assistant ID">
+          </div>
+          
+          <div class="voice-controls">
+            <button id="start-voice-btn" disabled>Start Voice Call</button>
+            <button id="stop-voice-btn" disabled>End Voice Call</button>
+            <button id="toggle-mute-btn" disabled>Mute</button>
+          </div>
+          
+          <div class="transcript-container">
+            <div class="transcript" id="transcript">Transcript will appear here...</div>
+          </div>
+        </section>
+        
+        <!-- Test Controls Section - Collapsible Accordion -->
+        <section class="test-controls">
+          <div class="test-accordion">
+            <div class="accordion-header">
+              <span>Advanced Testing Controls</span>
+              <span class="accordion-icon">+</span>
+            </div>
+            <div class="accordion-content">
+              <!-- Test Section: Assistant Configuration -->
+              <div class="test-section">
+                <h3>Step 1: Test Assistant Configuration</h3>
+                <button id="config-btn">Create Config</button>
+              </div>
+              
+              <!-- Test Section: Start a Call -->
+              <div class="test-section">
+                <h3>Step 2: Start a Call (API Test)</h3>
+                <div class="input-group">
+                  <label for="call-assistant-id-input">Assistant ID (optional):</label>
+                  <input type="text" id="call-assistant-id-input" placeholder="Assistant ID or use configuration">
+                </div>
+                <button id="start-btn">Start Call</button>
+              </div>
+              
+              <!-- Test Section: Send a Message -->
+              <div class="test-section">
+                <h3>Step 3: Send a Message</h3>
+                <div class="input-group">
+                  <label for="message-input">Message:</label>
+                  <input type="text" id="message-input" placeholder="Message to send" value="Test message">
+                </div>
+                <button id="send-btn">Send Message</button>
+              </div>
+              
+              <!-- Test Section: Mute Controls -->
+              <div class="test-section">
+                <h3>Step 4: Test Mute Controls</h3>
+                <div class="voice-controls">
+                  <button id="mute-btn">Mute</button>
+                  <button id="unmute-btn">Unmute</button>
+                  <button id="check-mute-btn">Check Mute Status</button>
+                </div>
+              </div>
+              
+              <!-- Test Section: Say Functionality -->
+              <div class="test-section">
+                <h3>Step 5: Test Say Functionality</h3>
+                <div class="input-group">
+                  <label for="say-input">Text to speak:</label>
+                  <input type="text" id="say-input" placeholder="Text to speak" value="This is a test message">
+                </div>
+                <div class="voice-controls">
+                  <button id="say-btn">Say</button>
+                  <button id="say-end-btn">Say & End Call</button>
+                </div>
+              </div>
+              
+              <!-- Test Section: Event Handlers -->
+              <div class="test-section">
+                <h3>Step 6: Register Event Handlers</h3>
+                <button id="events-btn">Register Events</button>
+              </div>
+              
+              <!-- Test Section: Stop the Call -->
+              <div class="test-section">
+                <h3>Step 7: Stop the Call</h3>
+                <button id="stop-btn">Stop Call</button>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Log Section -->
+        <section class="log-container">
+          <div class="log-header">Test Logs</div>
+          <div id="log"></div>
+        </section>
+      </div>
+    </div>
+    
+    <script type="module" src="/main-v2.js"></script>
+  </body>
+</html> 

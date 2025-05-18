@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VAPI Voice Assistant MVP</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #4CAF50;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .setup-section {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 12px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    .status {
+      margin: 20px 0;
+      padding: 15px;
+      border-radius: 4px;
+      background-color: #f8f8f8;
+      min-height: 50px;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .log {
+      height: 200px;
+      overflow-y: auto;
+      padding: 10px;
+      background-color: #f4f4f4;
+      border-radius: 4px;
+      margin-top: 20px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    .listening {
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+    }
+    .success { color: green; }
+    .error { color: red; }
+    .transcript {
+      font-style: italic;
+      margin-top: 10px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>VAPI Voice Assistant</h1>
+    
+    <div class="setup-section">
+      <h2>Setup</h2>
+      <label for="api-key">API Key:</label>
+      <input type="text" id="api-key" placeholder="Enter your VAPI API key">
+      
+      <label for="assistant-id">Assistant ID:</label>
+      <input type="text" id="assistant-id" placeholder="Enter your assistant ID" value="4df97e94-5cbf-4841-b19e-158a53cb9901">
+      
+      <button id="setup-btn">Initialize Assistant</button>
+    </div>
+    
+    <div class="status" id="status">
+      Status: Ready to initialize
+    </div>
+    
+    <div class="controls">
+      <button id="start-btn" disabled>Start Conversation</button>
+      <button id="stop-btn" disabled>End Conversation</button>
+      <button id="mute-btn" disabled>Mute</button>
+    </div>
+    
+    <div class="transcript" id="transcript"></div>
+    
+    <div class="log" id="log"></div>
+  </div>
+
+  <script type="module">
+    import Vapi from '/node_modules/@vapi-ai/web/dist/vapi.js';
+    
+    // DOM elements
+    const apiKeyInput = document.getElementById('api-key');
+    const assistantIdInput = document.getElementById('assistant-id');
+    const setupBtn = document.getElementById('setup-btn');
+    const startBtn = document.getElementById('start-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    const muteBtn = document.getElementById('mute-btn');
+    const statusEl = document.getElementById('status');
+    const logEl = document.getElementById('log');
+    const transcriptEl = document.getElementById('transcript');
+    
+    let vapi = null;
+    let callActive = false;
+    let isMuted = false;
+    
+    // Helper functions
+    function updateStatus(message, isError = false) {
+      statusEl.textContent = `Status: ${message}`;
+      statusEl.className = isError ? 'status error' : 'status';
+      if (!isError && message.includes('Listening')) {
+        statusEl.classList.add('listening');
+      } else {
+        statusEl.classList.remove('listening');
+      }
+    }
+    
+    function log(message, isError = false) {
+      const entry = document.createElement('div');
+      entry.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+      entry.className = isError ? 'error' : 'success';
+      logEl.appendChild(entry);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+    
+    function updateTranscript(text) {
+      transcriptEl.textContent = text;
+    }
+    
+    function enableButtons(buttonsConfig) {
+      startBtn.disabled = !buttonsConfig.start;
+      stopBtn.disabled = !buttonsConfig.stop;
+      muteBtn.disabled = !buttonsConfig.mute;
+    }
+    
+    // Initialize VAPI
+    setupBtn.addEventListener('click', () => {
+      const apiKey = apiKeyInput.value.trim();
+      
+      if (!apiKey) {
+        updateStatus('Please enter a valid API key', true);
+        return;
+      }
+      
+      try {
+        // Initialize VAPI
+        vapi = new Vapi(apiKey);
+        log('VAPI initialized successfully');
+        updateStatus('Assistant initialized, ready to start conversation');
+        enableButtons({ start: true, stop: false, mute: false });
+        
+        // Set up event handlers
+        vapi.on('call-start', () => {
+          log('Call started');
+          callActive = true;
+          enableButtons({ start: false, stop: true, mute: true });
+          updateStatus('Listening...');
+        });
+        
+        vapi.on('call-end', () => {
+          log('Call ended');
+          callActive = false;
+          enableButtons({ start: true, stop: false, mute: false });
+          updateStatus('Conversation ended');
+        });
+        
+        vapi.on('speech-start', () => {
+          log('Assistant speaking');
+          updateStatus('Assistant speaking...');
+        });
+        
+        vapi.on('speech-end', () => {
+          log('Assistant finished speaking');
+          updateStatus('Listening...');
+        });
+        
+        vapi.on('error', (err) => {
+          log(`Error: ${err.message || JSON.stringify(err)}`, true);
+          updateStatus(`Error: ${err.message || 'Unknown error'}`, true);
+        });
+        
+        vapi.on('message', (msg) => {
+          log(`Message: ${JSON.stringify(msg)}`);
+          
+          // If message contains a transcript, update the transcript display
+          if (msg.type === 'transcript' && msg.transcript) {
+            updateTranscript(msg.transcript);
+          }
+        });
+        
+      } catch (error) {
+        log(`Error initializing VAPI: ${error.message}`, true);
+        updateStatus(`Error: ${error.message}`, true);
+      }
+    });
+    
+    // Start conversation
+    startBtn.addEventListener('click', async () => {
+      const assistantId = assistantIdInput.value.trim();
+      
+      if (!assistantId) {
+        updateStatus('Please enter a valid Assistant ID', true);
+        return;
+      }
+      
+      try {
+        updateStatus('Starting conversation...');
+        log(`Starting call with assistant ID: ${assistantId}`);
+        
+        await vapi.start(assistantId);
+        
+      } catch (error) {
+        log(`Error starting conversation: ${error.message}`, true);
+        updateStatus(`Error: ${error.message}`, true);
+      }
+    });
+    
+    // End conversation
+    stopBtn.addEventListener('click', async () => {
+      try {
+        updateStatus('Ending conversation...');
+        await vapi.stop();
+        log('Call stopped successfully');
+      } catch (error) {
+        log(`Error stopping conversation: ${error.message}`, true);
+        updateStatus(`Error: ${error.message}`, true);
+      }
+    });
+    
+    // Toggle mute
+    muteBtn.addEventListener('click', () => {
+      try {
+        if (!callActive) return;
+        
+        isMuted = !isMuted;
+        vapi.setMuted(isMuted);
+        
+        muteBtn.textContent = isMuted ? 'Unmute' : 'Mute';
+        log(`Microphone ${isMuted ? 'muted' : 'unmuted'}`);
+        updateStatus(`Microphone ${isMuted ? 'muted' : 'unmuted'}`);
+      } catch (error) {
+        log(`Error toggling mute: ${error.message}`, true);
+      }
+    });
+  </script>
+</body>
+</html> 

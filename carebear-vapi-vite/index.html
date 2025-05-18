@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vapi SDK + Vite Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .test-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      button {
+        padding: 10px 15px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+      #log {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #f4f4f4;
+        border-radius: 4px;
+        height: 300px;
+        overflow-y: auto;
+        font-family: monospace;
+      }
+      .success {
+        color: green;
+      }
+      .error {
+        color: red;
+      }
+      input {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-right: 5px;
+        width: 300px;
+      }
+      .status {
+        margin: 20px 0;
+        padding: 15px;
+        border-radius: 4px;
+        background-color: #f8f8f8;
+      }
+      .listening {
+        animation: pulse 1.5s infinite;
+      }
+      @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+      }
+      .transcript {
+        font-style: italic;
+        margin: 15px 0;
+        padding: 10px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        border-left: 4px solid #4CAF50;
+      }
+      .voice-controls {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Vapi Web SDK Test Suite</h1>
+      
+      <div class="test-section">
+        <h3>Step 1: Initialize VAPI</h3>
+        <p>Enter your VAPI public key from the Vapi Dashboard:</p>
+        <input type="text" id="api-key-input" placeholder="Enter your API key" style="width: 300px;">
+        <button id="init-btn">Initialize SDK</button>
+      </div>
+
+      <div class="status" id="status">Ready to initialize</div>
+      
+      <div class="test-section">
+        <h3>Step 2: Voice Conversation</h3>
+        <p>Start a voice call with the assistant:</p>
+        <input type="text" id="assistant-id-input" placeholder="Assistant ID" style="width: 300px;">
+        <div class="voice-controls">
+          <button id="start-voice-btn" disabled>Start Voice Call</button>
+          <button id="stop-voice-btn" disabled>End Voice Call</button>
+          <button id="toggle-mute-btn" disabled>Mute</button>
+        </div>
+        <div class="transcript" id="transcript">Transcript will appear here...</div>
+      </div>
+      
+      <div class="test-section">
+        <h3>Step 3: Test Assistant Configuration</h3>
+        <button id="config-btn">Create Config</button>
+      </div>
+      
+      <div class="test-section">
+        <h3>Step 4: Start a Call (API Test)</h3>
+        <p>Use Assistant ID or Configuration:</p>
+        <input type="text" id="call-assistant-id-input" placeholder="Assistant ID (optional)" style="width: 300px;">
+        <button id="start-btn">Start Call</button>
+      </div>
+      
+      <div class="test-section">
+        <h3>Step 5: Send a Message</h3>
+        <input type="text" id="message-input" placeholder="Message to send" value="Test message" style="width: 300px;">
+        <button id="send-btn">Send Message</button>
+      </div>
+      
+      <div class="test-section">
+        <h3>Step 6: Test Mute Controls</h3>
+        <button id="mute-btn">Mute</button>
+        <button id="unmute-btn">Unmute</button>
+        <button id="check-mute-btn">Check Mute Status</button>
+      </div>
+      
+      <div class="test-section">
+        <h3>Step 7: Test Say Functionality</h3>
+        <input type="text" id="say-input" placeholder="Text to speak" value="This is a test message" style="width: 300px;">
+        <button id="say-btn">Say</button>
+        <button id="say-end-btn">Say & End Call</button>
+      </div>
+      
+      <div class="test-section">
+        <h3>Step 8: Register Event Handlers</h3>
+        <button id="events-btn">Register Events</button>
+      </div>
+      
+      <div class="test-section">
+        <h3>Step 9: Stop the Call</h3>
+        <button id="stop-btn">Stop Call</button>
+      </div>
+      
+      <div id="log"><h3>Test Logs:</h3></div>
+    </div>
+    
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
